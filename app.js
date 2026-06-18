@@ -272,32 +272,95 @@ function formatAmount(value) {
   return Math.round(value).toLocaleString("zh-CN");
 }
 
+function escapeAttribute(value) {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/"/g, "&quot;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
+
+function avg3MonthGas(item) {
+  return item.avg3MonthGas ?? Math.round((item.baseline30d || 0) * 30);
+}
+
+function lastMonthGas(item) {
+  return item.lastMonthGas ?? Math.max(1, Math.round(avg3MonthGas(item) * (1 + (item.volatility30d || 0) / 100)));
+}
+
+function gasDeclineRate(item) {
+  const baseline = avg3MonthGas(item);
+  if (!baseline) return 0;
+  return Math.max(0, Math.round(((baseline - item.monthGas) / baseline) * 100));
+}
+
+function monthChangeRate(item) {
+  const lastMonth = lastMonthGas(item);
+  if (!lastMonth) return 0;
+  return Math.round(((item.monthGas - lastMonth) / lastMonth) * 100);
+}
+
+function enterpriseRisk(item) {
+  const baseline = avg3MonthGas(item);
+  const decline = gasDeclineRate(item);
+  const change = monthChangeRate(item);
+
+  if (item.monthGas === 0 || (baseline > 0 && item.monthGas < baseline * 0.1)) {
+    return {
+      name: "疑似停产",
+      warningType: "疑似停产预警",
+      level: "红色",
+      threshold: "本月用气量 = 0；或本月用气量 < 近3个月月均用气量的10%",
+    };
+  }
+
+  if (baseline > 0 && item.monthGas < baseline * 0.6) {
+    return {
+      name: "疑似减产",
+      warningType: "疑似减产预警",
+      level: "红色",
+      threshold: "本月用气量 < 近3个月月均用气量的60%",
+    };
+  }
+
+  if (decline > 40) {
+    return {
+      name: "用气下降",
+      warningType: "用气下降预警",
+      level: "橙色",
+      threshold: "本月用气量较近3个月月均用气量下降超过40%",
+    };
+  }
+
+  if (change > 50 || change < -50) {
+    return {
+      name: "经营波动异常",
+      warningType: "经营波动异常预警",
+      level: "黄色",
+      threshold: "月环比变化率 > 50% 或 < -50%",
+    };
+  }
+
+  return {
+    name: "正常监测",
+    warningType: "正常监测",
+    level: "蓝色",
+    threshold: "当前用气量未触发经营预警阈值",
+  };
+}
+
 function enterpriseRiskName(item) {
-  if (item.warningType === "疑似停产预警") return "疑似停产";
-  if (item.warningType === "用气下降 + 回款下降复合预警") return "疑似减产";
-  if (item.warningType === "回款异常预警") return "回款异常";
-  if (item.warningType === "经营波动异常预警") return "经营波动";
-  return "正常监测";
+  return enterpriseRisk(item).name;
 }
 
 function enterpriseReport(item) {
-  if (item.warningType === "疑似停产预警") {
-    return `【疑似停产预警】${item.company}已连续${item.zeroGasDays}天燃气用量为0或接近0，明显低于历史正常用气水平。系统判断存在停产、停业、表计异常或数据缺失可能，建议优先核查。`;
-  }
+  const risk = enterpriseRisk(item);
+  const baseline = avg3MonthGas(item);
+  const lastMonth = lastMonthGas(item);
+  const decline = gasDeclineRate(item);
+  const change = monthChangeRate(item);
 
-  if (item.warningType === "回款异常预警") {
-    return `【回款异常预警】${item.company}本期应收金额${formatAmount(item.receivable)}元，实收金额${formatAmount(item.received)}元，回款率为${item.collectionRate}%，低于预警阈值。建议关注企业缴费和经营压力情况。`;
-  }
-
-  if (item.warningType === "用气下降 + 回款下降复合预警") {
-    return `【疑似减产预警】${item.company}近7日平均燃气用量为${formatAmount(item.weekAverage)}，较近30日基线下降${item.declineRate}%，已连续${item.abnormalDays}天低于正常水平。同期回款率为${item.collectionRate}%，系统判断该企业存在减产或经营波动可能，建议进一步核实生产经营状态。`;
-  }
-
-  if (item.warningType === "经营波动异常预警") {
-    return `【疑似减产预警】${item.company}近7日平均燃气用量为${formatAmount(item.weekAverage)}，较近30日基线下降${item.declineRate}%，近7日用气波动率高于近30日基线。系统判断该企业存在减产或经营波动可能，建议进一步核实生产经营状态。`;
-  }
-
-  return `【常态监测】${item.company}近7日平均燃气用量为${formatAmount(item.weekAverage)}，回款率为${item.collectionRate}%，当前用气与缴费状态处于正常监测范围。`;
+  return `【${risk.warningType}】${item.company}本月用气量${formatAmount(item.monthGas)}m³，近3个月月均用气量${formatAmount(baseline)}m³，较月均下降${decline}%；上月用气量${formatAmount(lastMonth)}m³，月环比变化率${change}%。触发阈值：${risk.threshold}。建议核实企业生产计划、设备运行和停产减产情况。`;
 }
 
 function elderlyLevelMeta(level) {
@@ -340,9 +403,10 @@ function renderElderlyMonitorPanel() {
         )
         .join("")}
     </div>
-    <h3 class="elderly-analysis-title">分析结果</h3>
+    <h3 class="elderly-analysis-title">智慧用气预警分析</h3>
     <div class="elderly-analysis-list">
       ${elderlyItems
+        .filter((item) => item.name === "官**" || item.name === "黄**")
         .map((item) => {
           const level = elderlyLevelMeta(item.level);
           return `
@@ -364,21 +428,21 @@ function renderEnterpriseRiskPanel() {
   const enterprises = dashboardData.enterpriseMonitoring;
   const levelOrder = ["红色", "橙色", "黄色", "蓝色"];
   const riskSummary = [
-    { name: "疑似停产", level: "红色" },
-    { name: "疑似减产", level: "橙色" },
-    { name: "回款异常", level: "黄色" },
-    { name: "经营波动", level: "黄色" },
+    { name: "疑似停产", level: "红色", rule: "本月=0或低于月均10%" },
+    { name: "疑似减产", level: "红色", rule: "本月低于月均60%" },
+    { name: "用气下降", level: "橙色", rule: "较月均下降超40%" },
+    { name: "经营波动异常", level: "黄色", rule: "月环比超过±50%" },
   ].map((summary) => ({
     ...summary,
     count: enterprises.filter((item) => enterpriseRiskName(item) === summary.name).length,
     ...enterpriseLevelMeta(summary.level),
   }));
   const focused = enterprises
-    .filter((item) => item.warningType !== "正常监测")
-    .sort((a, b) => levelOrder.indexOf(a.level) - levelOrder.indexOf(b.level));
+    .map((item) => ({ ...item, computedRisk: enterpriseRisk(item) }))
+    .filter((item) => item.computedRisk.name !== "正常监测")
+    .sort((a, b) => levelOrder.indexOf(a.computedRisk.level) - levelOrder.indexOf(b.computedRisk.level));
 
   $("#enterpriseRiskContent").innerHTML = `
-    <h3 class="enterprise-analysis-title">企业经营分析</h3>
     <div class="enterprise-levels">
       ${riskSummary
         .map(
@@ -386,22 +450,26 @@ function renderEnterpriseRiskPanel() {
             <article class="enterprise-level ${item.className}">
               <span>${item.name}</span>
               <strong>${item.count}</strong>
+              <small>${item.rule}</small>
             </article>
           `,
         )
         .join("")}
     </div>
+    <h3 class="enterprise-analysis-title">企业经营分析</h3>
     <div class="enterprise-risk-list">
       ${focused
         .map((item) => {
-          const level = enterpriseLevelMeta(item.level);
+          const level = enterpriseLevelMeta(item.computedRisk.level);
+          const report = enterpriseReport(item);
+          const fullText = escapeAttribute(report);
           return `
             <article class="enterprise-risk-item ${level.className}">
               <div>
                 <strong>${item.company}</strong>
-                <span>${enterpriseRiskName(item)} · ${item.level}</span>
+                <span>${item.computedRisk.name} · ${item.computedRisk.level}</span>
               </div>
-              <p>${enterpriseReport(item)}</p>
+              <p class="enterprise-risk-text" data-full-text="${fullText}" title="${fullText}">${report}</p>
             </article>
           `;
         })
@@ -1151,7 +1219,7 @@ function renderSelectedAnalysis() {
 function renderTrend() {
   const enterprises = dashboardData.enterpriseMonitoring;
   const totalGas = enterprises.reduce((sum, item) => sum + item.monthGas, 0);
-  const totalCollection = enterprises.reduce((sum, item) => sum + item.received, 0);
+  const avg3MonthTotal = enterprises.reduce((sum, item) => sum + avg3MonthGas(item), 0);
 
   $("#enterpriseStatsContent").innerHTML = `
     <div class="enterprise-stat-grid">
@@ -1164,8 +1232,8 @@ function renderTrend() {
         <strong>${formatAmount(totalGas)}<small>m³</small></strong>
       </article>
       <article class="enterprise-stat-card">
-        <span>本月总回款</span>
-        <strong>${formatAmount(totalCollection)}<small>元</small></strong>
+        <span>近3月月均用气量</span>
+        <strong>${formatAmount(avg3MonthTotal)}<small>m³</small></strong>
       </article>
     </div>
   `;

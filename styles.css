@@ -127,6 +127,10 @@ button {
   margin-bottom: 14px;
 }
 
+.enterprise-monitor-strip {
+  align-items: start;
+}
+
 .ratio-panel {
   min-height: 250px;
   padding: 22px 26px;
@@ -191,13 +195,14 @@ button {
 }
 
 .enterprise-monitor-panel {
-  min-height: 480px;
+  min-height: 0;
+  padding: 18px 22px;
   overflow: hidden;
 }
 
 .elderly-monitor-panel {
-  min-height: 480px;
-  padding: 18px 20px;
+  min-height: 0;
+  padding: 26px 20px 22px;
   overflow: hidden;
   background:
     linear-gradient(180deg, rgba(13, 29, 51, 0.72), rgba(5, 13, 26, 0.82)),
@@ -206,20 +211,20 @@ button {
 
 .elderly-monitor-content {
   display: grid;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 14px;
+  margin-top: 26px;
 }
 
 .elderly-risk-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .elderly-risk-card {
   position: relative;
-  min-height: 88px;
-  padding: 10px;
+  min-height: 106px;
+  padding: 12px 14px;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(8, 18, 32, 0.66);
@@ -270,7 +275,7 @@ button {
 }
 
 .elderly-analysis-title {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   color: #e0f2fe;
   font-size: 17px;
   font-weight: 800;
@@ -278,24 +283,8 @@ button {
 
 .elderly-analysis-list {
   display: grid;
-  gap: 8px;
-  max-height: 176px;
-  overflow-y: auto;
-  padding-right: 4px;
-  scrollbar-color: rgba(34, 211, 238, 0.48) rgba(8, 18, 32, 0.4);
-  scrollbar-width: thin;
-}
-
-.elderly-analysis-list::-webkit-scrollbar {
-  width: 6px;
-}
-
-.elderly-analysis-list::-webkit-scrollbar-track {
-  background: rgba(8, 18, 32, 0.4);
-}
-
-.elderly-analysis-list::-webkit-scrollbar-thumb {
-  background: rgba(34, 211, 238, 0.48);
+  gap: 10px;
+  overflow: visible;
 }
 
 .elderly-analysis-item {
@@ -356,7 +345,7 @@ button {
   display: grid;
   gap: 10px;
   padding: 12px;
-  margin-top: 8px;
+  margin-top: 18px;
   border: 1px solid rgba(148, 163, 184, 0.12);
   background: rgba(2, 8, 23, 0.42);
 }
@@ -369,8 +358,8 @@ button {
 
 .enterprise-stat-card {
   position: relative;
-  min-height: 88px;
-  padding: 12px 14px;
+  min-height: 106px;
+  padding: 14px 16px;
   overflow: hidden;
   border: 1px solid rgba(34, 211, 238, 0.22);
   background:
@@ -417,8 +406,14 @@ button {
   margin-top: 12px;
 }
 
+#enterpriseRiskContent {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
+
 .enterprise-analysis-title {
-  margin: 0 0 2px;
+  margin: 4px 0 0;
   color: #e0f2fe;
   font-size: 17px;
   line-height: 1.2;
@@ -428,13 +423,13 @@ button {
 .enterprise-levels {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  gap: 10px;
 }
 
 .enterprise-level {
   position: relative;
-  min-height: 48px;
-  padding: 8px 10px;
+  min-height: 82px;
+  padding: 10px 12px;
   overflow: hidden;
   border: 1px solid rgba(148, 163, 184, 0.16);
   background: rgba(8, 18, 32, 0.66);
@@ -463,6 +458,14 @@ button {
   line-height: 1;
 }
 
+.enterprise-level small {
+  display: block;
+  margin-top: 6px;
+  color: #8fa8c4;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .enterprise-level.blue {
   --level-color: #38bdf8;
 }
@@ -481,8 +484,8 @@ button {
 
 .enterprise-risk-list {
   display: grid;
-  gap: 8px;
-  max-height: 188px;
+  gap: 10px;
+  max-height: 170px;
   overflow-y: auto;
   padding-right: 4px;
   scrollbar-color: rgba(34, 211, 238, 0.48) rgba(8, 18, 32, 0.4);
@@ -542,6 +545,32 @@ button {
   color: #cbd5e1;
   font-size: 12px;
   line-height: 1.5;
+}
+
+.enterprise-risk-text {
+  position: relative;
+  display: -webkit-box;
+  max-height: 36px;
+  overflow: hidden;
+  cursor: help;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.enterprise-risk-text:hover::after {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 6;
+  min-height: 100%;
+  padding: 8px 10px;
+  color: #e5f3ff;
+  white-space: normal;
+  content: attr(data-full-text);
+  border: 1px solid rgba(34, 211, 238, 0.34);
+  background: rgba(4, 13, 27, 0.98);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.36);
 }
 
 .enterprise-risk-item.blue {
