@@ -82,7 +82,10 @@
                   <p class="eyebrow">Realtime Alerts</p>
                   <h2>实时告警</h2>
                 </div>
-                <span class="chip">视频预警</span>
+                <div class="alert-head-meta">
+                  <div id="riskLevelLegend" class="risk-level-legend"></div>
+                  <span class="chip" id="realtimeMetricLabel">视频预警</span>
+                </div>
               </div>
               <div class="risk-filter-bar" aria-label="风险类型筛选">
                 <div id="riskList" class="risk-list"></div>
@@ -98,7 +101,6 @@
                 </div>
                 <span class="chip" id="selectedAlertLabel">--</span>
               </div>
-              <div id="riskLevelLegend" class="risk-level-legend"></div>
               <div id="selectedAnalysis"></div>
             </section>
           </section>

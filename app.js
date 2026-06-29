@@ -909,7 +909,7 @@ function renderEmptyRealtime(message = "暂无高风险数据") {
 }
 
 function renderRealtimeAlerts() {
-  const panelLabel = document.querySelector(".map-panel .chip");
+  const panelLabel = $("#realtimeMetricLabel");
   if (state.activeRiskId === "construction") {
     panelLabel.textContent = "视频预警";
     renderConstructionVideos();

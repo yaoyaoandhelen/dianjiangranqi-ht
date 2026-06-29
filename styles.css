@@ -840,6 +840,14 @@ small {
   margin-bottom: 10px;
 }
 
+.alert-head-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  min-width: 0;
+}
+
 .risk-level-legend {
   display: flex;
   flex-wrap: wrap;
@@ -847,7 +855,7 @@ small {
   gap: 8px 12px;
   margin-left: auto;
   color: #cbd5e1;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
 }
 
