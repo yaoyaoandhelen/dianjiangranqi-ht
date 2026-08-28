@@ -1879,8 +1879,28 @@ small {
 .construction-fact-grid strong {
   display: block;
   color: #f8fafc;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.35;
+}
+
+.history-frequency-button {
+  display: block;
+  width: 100%;
+  padding: 0;
+  color: #f8fafc;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 900;
+  line-height: 1.35;
+  text-align: left;
+  border: 0;
+  background: transparent;
+}
+
+.history-frequency-button:hover {
+  color: var(--cyan);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .construction-report-sections {
@@ -1895,6 +1915,16 @@ small {
 
 .construction-report-sections section.wide {
   grid-column: 1 / -1;
+}
+
+.ai-advice-note {
+  margin: 0;
+  padding: 10px 12px;
+  color: #a8bed8;
+  font-size: 13px;
+  line-height: 1.6;
+  border: 1px solid rgba(250, 204, 21, 0.24);
+  background: rgba(122, 90, 0, 0.1);
 }
 
 .live-monitor-button {
@@ -2007,6 +2037,126 @@ small {
   width: 100%;
   max-height: calc(88vh - 82px);
   background: #020817;
+}
+
+.history-modal-panel {
+  width: 1180px;
+  max-width: calc(100vw - 64px);
+  height: 420px;
+  max-height: calc(100vh - 64px);
+}
+
+.history-modal-body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  min-height: 0;
+}
+
+.history-modal-panel .video-modal-head {
+  position: relative;
+  justify-content: center;
+}
+
+.history-modal-panel .video-modal-head strong {
+  width: 100%;
+  text-align: center;
+}
+
+.history-modal-panel .video-modal-head button {
+  position: absolute;
+  right: 0;
+}
+
+.history-modal-body p {
+  margin: 0;
+  color: #93a4b8;
+  font-size: 13px;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-table-wrap {
+  height: 100%;
+  min-height: 0;
+  overflow: auto;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+}
+
+.history-table {
+  width: 100%;
+  min-width: 1280px;
+  border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+  padding: 11px 10px;
+  color: #dbeafe;
+  font-size: 13px;
+  line-height: 1.45;
+  text-align: center;
+  vertical-align: top;
+  white-space: nowrap;
+  border-bottom: 1px solid rgba(125, 211, 252, 0.14);
+}
+
+.history-table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  color: #7dd3fc;
+  font-weight: 900;
+  white-space: nowrap;
+  background: rgba(7, 17, 31, 0.98);
+}
+
+.history-table td:first-child,
+.history-table th:first-child {
+  width: 56px;
+}
+
+.history-table td:nth-child(2),
+.history-table th:nth-child(2) {
+  width: 88px;
+}
+
+.history-table td:nth-child(3),
+.history-table th:nth-child(3) {
+  width: 146px;
+}
+
+.history-table td:nth-child(4),
+.history-table th:nth-child(4),
+.history-table td:nth-child(5),
+.history-table th:nth-child(5) {
+  width: 160px;
+}
+
+.history-table td:nth-child(6),
+.history-table th:nth-child(6) {
+  min-width: 430px;
+  text-align: left;
+}
+
+.history-table td:nth-child(7),
+.history-table th:nth-child(7) {
+  min-width: 240px;
+  text-align: left;
+}
+
+.history-table strong.risk-low {
+  color: #38bdf8;
+}
+
+.history-table strong.risk-medium {
+  color: #facc15;
+}
+
+.history-table strong.risk-high {
+  color: #fb923c;
 }
 
 .legend {

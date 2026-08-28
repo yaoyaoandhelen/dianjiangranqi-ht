@@ -296,6 +296,102 @@ function closeVideoModal() {
   modal.setAttribute("aria-hidden", "true");
 }
 
+function constructionWarningContent(alert) {
+  if (alert.level === "低风险") return "监控到监控区域出现人员活动，需要持续关注是否靠近管线或演变为施工行为。";
+  if (alert.level === "中风险") return "监控到监控区域出现工程运输车，需要关注是否存在施工运输、材料进出场或工程作业准备。";
+  if (alert.level === "高风险") return "监控到监控区域出现挖掘机，需要立即核查是否存在开挖、破土或机械施工风险。";
+  return alert.title || "监控区域出现异常施工活动，需要持续跟踪研判。";
+}
+
+function constructionHistoryContext(alert) {
+  const source = `${alert.deviceName || ""}${alert.station || ""}`;
+  if (source.includes("桂西路") || source.includes("凉风垭")) {
+    return {
+      area: "垫江县桂阳街道",
+      address: "桂西路凉风垭储配站周边",
+      device: alert.deviceName || alert.camera || "当前设备",
+    };
+  }
+  if (source.includes("工业园")) {
+    return {
+      area: "垫江县工业园区",
+      address: `${alert.station || "工业园区配气站"}周边`,
+      device: alert.deviceName || alert.camera || "当前设备",
+    };
+  }
+  return {
+    area: alert.region?.split("/")?.[1] ? `垫江县${alert.station?.slice(0, 2) || "属地"}街道` : "垫江县属地街道",
+    address: alert.station || alert.region || "当前预警点位",
+    device: alert.deviceName || alert.camera || "当前设备",
+  };
+}
+
+function historyRowsForConstruction(alert) {
+  const context = constructionHistoryContext(alert);
+  const counts = [
+    ["低风险", alert.frequency.low || 0],
+    ["中风险", alert.frequency.medium || 0],
+    ["高风险", alert.frequency.high || 0],
+  ];
+  const rows = [];
+  counts.forEach(([level, count]) => {
+    for (let index = 0; index < count; index += 1) {
+      rows.push({
+        level,
+        time: `2026-05-${String(30 - rows.length).padStart(2, "0")} ${String(17 - (rows.length % 5)).padStart(2, "0")}:${String(42 - (rows.length % 6) * 5).padStart(2, "0")}:16`,
+        place: context.address,
+        area: context.area,
+        content: constructionWarningContent({ ...alert, level }),
+        disposal: level === "高风险" ? "已生成事件并下发治理中心处置。" : "人工复核后保留为施工关注记录。",
+      });
+    }
+  });
+  if (rows.length) return rows;
+  return [
+    {
+      level: alert.level,
+      time: alert.time,
+      place: context.address,
+      area: context.area,
+      content: constructionWarningContent(alert),
+      disposal: alert.disposalResult || alert.confirmResult || "业务系统已回传当前处置状态。",
+    },
+  ];
+}
+
+function openHistoryModal(alert) {
+  const modal = $("#historyModal");
+  const body = $("#historyTableBody");
+  if (!modal || !body) return;
+  const context = constructionHistoryContext(alert);
+  $("#historyModalTitle").textContent = "历史预警信息";
+  $("#historyModalMeta").textContent = `${context.area} · ${context.address} · ${context.device}`;
+  body.innerHTML = historyRowsForConstruction(alert)
+    .map(
+      (row, index) => `
+        <tr>
+          <td>${index + 1}</td>
+          <td><strong class="${constructionRiskClass(row.level)}">${row.level}</strong></td>
+          <td>${row.time}</td>
+          <td>${row.place}</td>
+          <td>${row.area}</td>
+          <td>${row.content}</td>
+          <td>${row.disposal}</td>
+        </tr>
+      `,
+    )
+    .join("");
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+
+function closeHistoryModal() {
+  const modal = $("#historyModal");
+  if (!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+}
+
 function warmVideoCache() {
   if (videoCacheStarted) return;
   videoCacheStarted = true;
@@ -1399,7 +1495,7 @@ function renderSelectedAnalysis() {
             <section class="construction-report-brief">
               <div class="construction-fact-grid">
                 <span>
-                  <b>等级预警</b>
+                  <b>预警等级</b>
                   <strong>${alert.level}</strong>
                 </span>
                 <span>
@@ -1407,20 +1503,20 @@ function renderSelectedAnalysis() {
                   <strong>${alert.time}</strong>
                 </span>
                 <span>
-                  <b>告警目标</b>
-                  <strong>${alert.deviceName || alert.camera}</strong>
+                  <b>预警内容</b>
+                  <strong>${constructionWarningContent(alert)}</strong>
                 </span>
                 <span>
-                  <b>告警地点</b>
-                  <strong>${alert.station || alert.region}</strong>
-                </span>
-                <span>
-                  <b>风险区域</b>
+                  <b>预警区域</b>
                   <strong>${alert.distance}</strong>
                 </span>
                 <span>
-                  <b>历史告警频次</b>
-                  <strong>${frequencyText}</strong>
+                  <b>预警地点</b>
+                  <strong>${alert.station || alert.region}</strong>
+                </span>
+                <span>
+                  <b>历史预警频次</b>
+                  <button class="history-frequency-button" type="button" data-history-warning>${frequencyText}</button>
                 </span>
               </div>
             </section>
@@ -1446,10 +1542,12 @@ function renderSelectedAnalysis() {
                 <p>${alert.analysisResult || "模型根据视频识别结果、距离、持续时间和历史频次自动生成研判结论。"}</p>
               </section>
             </div>
+            <p class="ai-advice-note">提示：可能原因、可能影响和处置建议由 AI 根据当前预警信息生成，仅供辅助研判参考，实际处置需结合现场核查、业务制度和专业人员判断后执行。</p>
           </div>
         </div>
       </article>
     `;
+    $("#selectedAnalysis [data-history-warning]")?.addEventListener("click", () => openHistoryModal(alert));
     return;
   }
 
@@ -1632,8 +1730,15 @@ document.querySelectorAll("[data-video-close]").forEach((item) => {
   item.addEventListener("click", closeVideoModal);
 });
 
+document.querySelectorAll("[data-history-close]").forEach((item) => {
+  item.addEventListener("click", closeHistoryModal);
+});
+
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") closeVideoModal();
+  if (event.key === "Escape") {
+    closeVideoModal();
+    closeHistoryModal();
+  }
 });
 
 $("#riskTrendRange").addEventListener("change", (event) => {
