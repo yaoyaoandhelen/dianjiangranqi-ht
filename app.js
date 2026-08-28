@@ -6,6 +6,8 @@ const state = {
   trendRange: "today",
   riskTrendRange: "today",
   majorRiskFilter: false,
+  constructionRiskFilter: "全部风险",
+  constructionStatusFilter: "全部状态",
 };
 
 const $ = (selector) => document.querySelector(selector);
@@ -71,7 +73,7 @@ function majorRiskTotalForRisk(riskId) {
 }
 
 function realConstructionAlertRows() {
-  return [
+  const seeds = [
     {
       title: "周边施工低风险视频预警",
       time: "2026-05-30 17:42:16",
@@ -86,6 +88,11 @@ function realConstructionAlertRows() {
       cause: "视频识别到施工人员或设备处于低风险关注区，暂未进入管道红线或管控区。",
       impact: "当前对管道安全影响较低，但需持续关注后续是否出现机械靠近或开挖行为。",
       advice: "点击查看视频大图，保留视频证据并持续跟踪该点位施工动态。",
+      processStatus: "人工已确认",
+      businessSystem: "燃气管网安全业务系统",
+      confirmResult: "人工复核为非风险，仅保留为施工关注记录。",
+      analysisResult: "模型识别到人员短暂停留，未发现开挖、打桩或机械越界动作，建议继续以视频抽帧方式跟踪。",
+      disposalResult: "未进入事件处置流程，业务系统已回传人工已确认状态。",
       metrics: [
         { label: "施工活动", value: "人员通行", state: "低风险关注" },
         { label: "距管道中心线", value: "62 m", state: "低风险区" },
@@ -108,6 +115,10 @@ function realConstructionAlertRows() {
       cause: "视频识别到施工活动处于低风险关注范围，暂未发现机械越界或开挖动作。",
       impact: "当前风险较低，但施工活动可能随时间向管控区靠近，需要保持视频跟踪。",
       advice: "点击查看视频大图，持续抽帧观察并在出现机械靠近时自动升级预警。",
+      processStatus: "待确认",
+      businessSystem: "燃气管网安全业务系统",
+      confirmResult: "已下发业务系统，等待属地网格人工确认。",
+      analysisResult: "施工车辆位于低风险关注区，距离管线仍有缓冲空间，暂未触发事件派发条件。",
       metrics: [
         { label: "施工活动", value: "场地整理", state: "低风险关注" },
         { label: "距管道中心线", value: "58 m", state: "低风险区" },
@@ -130,6 +141,12 @@ function realConstructionAlertRows() {
       cause: "视频识别到第三方施工区域存在明显积水，低洼积水可能与近期降雨、排水不畅或施工围挡阻水有关，需核实是否靠近燃气管道、阀井或管沟。",
       impact: "积水可能导致管沟长期浸泡、防腐层受潮失效、阀井设备受潮锈蚀，并遮挡地面警示标识和施工边界，降低巡检可视性与应急处置效率。",
       advice: "立即通知属地巡检人员核查积水范围、深度及与管线位置关系，督促施工方排水并恢复警示隔离；若积水靠近阀井或管道红线，需联动抢维修人员复核防腐、阀井密封和周边沉降情况。",
+      processStatus: "处置中",
+      businessSystem: "燃气管网安全业务系统",
+      confirmResult: "人工确认存在风险，已生成事件并下发治理中心。",
+      eventCode: "DJ-SG-20260609-003",
+      governanceCenter: "三级治理中心 · 桂阳街道",
+      analysisResult: "积水覆盖施工低洼区，可能影响阀井和管沟可视化巡检，需现场核实积水深度与管线位置关系。",
       metrics: [
         { label: "环境状态", value: "施工区积水", state: "中风险关注" },
         { label: "影响对象", value: "管沟/阀井", state: "需现场复核" },
@@ -139,6 +156,64 @@ function realConstructionAlertRows() {
       videoUrl: "./assets/videos/construction-waterlogging-risk.mp4",
     },
   ];
+
+  const riskPlans = [
+    { level: "高风险", status: "待确认", distance: "7m管道红区", activity: "破路开挖靠近", camera: "04#监控", videoUrl: "./assets/videos/construction-waterlogging-risk.mp4" },
+    { level: "高风险", status: "处置中", distance: "8m管道红区", activity: "挖机进入红区", camera: "09#监控", videoUrl: "./assets/videos/construction-waterlogging-risk.mp4" },
+    { level: "高风险", status: "已完成", distance: "6m管道红区", activity: "打桩设备停留", camera: "10#监控", videoUrl: "./assets/videos/third-party-construction-low-risk.mp4" },
+    { level: "高风险", status: "人工已确认", distance: "11m管道红区", activity: "吊装设备停靠", camera: "11#监控", videoUrl: "./assets/videos/third-party-construction-low-risk-2.mp4" },
+    { level: "中风险", status: "待确认", distance: "32m管控关注区", activity: "围挡搭设", camera: "06#监控", videoUrl: "./assets/videos/construction-waterlogging-risk.mp4" },
+    { level: "中风险", status: "处置中", distance: "26m管控关注区", activity: "小型机械靠近", camera: "07#监控", videoUrl: "./assets/videos/third-party-construction-low-risk.mp4" },
+    { level: "中风险", status: "已完成", distance: "29m管控关注区", activity: "临时开挖复核", camera: "08#监控", videoUrl: "./assets/videos/third-party-construction-low-risk-2.mp4" },
+    { level: "中风险", status: "人工已确认", distance: "35m管控关注区", activity: "临时围挡撤除", camera: "12#监控", videoUrl: "./assets/videos/third-party-construction-low-risk-2.mp4" },
+    { level: "低风险", status: "待确认", distance: "64m低风险区", activity: "材料堆放", camera: "13#监控", videoUrl: "./assets/videos/third-party-construction-low-risk.mp4" },
+    { level: "低风险", status: "处置中", distance: "52m低风险区", activity: "车辆短暂停留", camera: "14#监控", videoUrl: "./assets/videos/construction-waterlogging-risk.mp4" },
+    { level: "低风险", status: "已完成", distance: "68m低风险区", activity: "清运车辆驶离", camera: "15#监控", videoUrl: "./assets/videos/third-party-construction-low-risk.mp4" },
+    { level: "低风险", status: "人工已确认", distance: "71m低风险区", activity: "人员巡场", camera: "05#监控", videoUrl: "./assets/videos/third-party-construction-low-risk-2.mp4" },
+  ];
+
+  const extraRows = Array.from({ length: 16 }, (_, index) => {
+    const plan = riskPlans[index % riskPlans.length];
+    const minute = String(34 - index).padStart(2, "0");
+    const isRisk = plan.status === "处置中" || plan.status === "已完成";
+    const isHigh = plan.level === "高风险";
+    return {
+      title: `${plan.activity}${plan.level}视频预警`,
+      time: `2026-05-30 17:${minute}:16`,
+      station: index % 2 ? "桂阳街道管网监控点" : "垫江工业园区配气站",
+      region: "重庆/垫江/鼎发燃气",
+      camera: plan.camera,
+      deviceName: `垫江县施工监测${plan.camera}`,
+      distance: plan.distance,
+      level: plan.level,
+      beforeAfter: "前后30s视频",
+      frequency: {
+        low: plan.level === "低风险" ? 1 + (index % 2) : 0,
+        medium: plan.level === "中风险" ? 1 + (index % 2) : 0,
+        high: plan.level === "高风险" ? 1 + (index % 2) : 0,
+        critical: 0,
+      },
+      cause: `视频识别到${plan.activity}，位置处于${plan.distance}，需结合施工许可、管线红线和现场人员确认。`,
+      impact: isHigh ? "施工活动已接近管道红区，若继续开挖或机械碾压，可能造成管道外防腐层损伤、管体受力异常或燃气泄漏风险。" : "当前尚未形成直接破坏，但施工活动可能向管控区移动，需要持续关注并保留证据。",
+      advice: isRisk ? "维持视频跟踪并同步治理中心处置进展，必要时要求施工方停工、撤离机械并现场复核管线安全状态。" : "下发业务系统进行人工确认，确认非风险则归档，确认有风险则自动生成事件进入处置流程。",
+      processStatus: plan.status,
+      businessSystem: "燃气管网安全业务系统",
+      confirmResult: isRisk ? "人工确认存在风险，已生成事件并下发治理中心。" : plan.status === "人工已确认" ? "人工复核为非风险，未进入事件处置流程。" : "已下发业务系统，等待人工确认。",
+      eventCode: isRisk ? `DJ-SG-20260530-${String(index + 4).padStart(3, "0")}` : undefined,
+      governanceCenter: isRisk ? "三级治理中心 · 属地街镇" : undefined,
+      disposalResult: plan.status === "已完成" ? "治理中心反馈：施工方已撤离机械并恢复警示隔离，现场复核未发现管道受损，预警闭环完成。" : undefined,
+      analysisResult: `${plan.activity}位于${plan.distance}，模型综合人员、机械、距离和持续时间判断为${plan.level}；当前业务状态为${plan.status}。`,
+      metrics: [
+        { label: "施工活动", value: plan.activity, state: plan.level },
+        { label: "距管道中心线", value: plan.distance.replace("低风险区", "").replace("管控关注区", "").replace("管道红区", ""), state: plan.distance.includes("红区") ? "红区" : "关注区" },
+        { label: "业务状态", value: plan.status, state: isRisk ? "事件流转" : "人工确认" },
+      ],
+      thumbnail: "",
+      videoUrl: plan.videoUrl,
+    };
+  });
+
+  return [...seeds, ...extraRows];
 }
 
 function riskListCount(riskId) {
@@ -190,7 +265,8 @@ function bindTablePager(rows, pageSize = state.alertPageSize) {
       const pageCount = Math.max(1, Math.ceil(rows.length / size));
       state.activeAlertPage += button.dataset.pageAction === "next" ? 1 : -1;
       state.activeAlertPage = Math.min(Math.max(1, state.activeAlertPage), pageCount);
-      state.activeAlertIndex = (state.activeAlertPage - 1) * size;
+      const firstRow = rows[(state.activeAlertPage - 1) * size];
+      state.activeAlertIndex = typeof firstRow?.sourceIndex === "number" ? firstRow.sourceIndex : (state.activeAlertPage - 1) * size;
       renderRealtimeAlerts();
       renderSelectedAnalysis();
     });
@@ -898,6 +974,52 @@ function analysisDeviceTitle(alert, riskId = state.activeRiskId) {
   return `${deviceId(alert, riskId)} · ${deviceName(alert, riskId)}`;
 }
 
+function constructionRiskClass(level) {
+  return { 低风险: "risk-low", 中风险: "risk-medium", 高风险: "risk-high" }[level] || "risk-low";
+}
+
+function constructionStatusClass(status) {
+  return { 待确认: "status-pending", 人工已确认: "status-confirmed", 处置中: "status-processing", 已完成: "status-done" }[status] || "status-pending";
+}
+
+function constructionStats(rows, names, colors, key) {
+  return names.map((name, index) => ({
+    name,
+    color: colors[index],
+    count: rows.filter((row) => row[key] === name).length,
+  }));
+}
+
+function compareConstructionAlerts(left, right) {
+  const riskOrder = { 高风险: 0, 中风险: 1, 低风险: 2 };
+  const statusOrder = { 待确认: 0, 处置中: 1, 已完成: 2, 人工已确认: 3 };
+  const riskDiff = (riskOrder[left.row.level] ?? 9) - (riskOrder[right.row.level] ?? 9);
+  if (riskDiff) return riskDiff;
+  const statusDiff = (statusOrder[left.row.processStatus] ?? 9) - (statusOrder[right.row.processStatus] ?? 9);
+  if (statusDiff) return statusDiff;
+  return right.row.time.localeCompare(left.row.time);
+}
+
+function donutGradient(items) {
+  const total = items.reduce((sum, item) => sum + item.count, 0) || 1;
+  let cursor = 0;
+  return `conic-gradient(${items
+    .map((item) => {
+      const start = cursor;
+      cursor += (item.count / total) * 100;
+      return `${item.color} ${start}% ${cursor}%`;
+    })
+    .join(", ")})`;
+}
+
+function filteredConstructionRows(sourceRows) {
+  return sourceRows
+    .map((row, sourceIndex) => ({ row, sourceIndex }))
+    .filter(({ row }) => state.constructionRiskFilter === "全部风险" || row.level === state.constructionRiskFilter)
+    .filter(({ row }) => state.constructionStatusFilter === "全部状态" || row.processStatus === state.constructionStatusFilter)
+    .sort(compareConstructionAlerts);
+}
+
 function renderEmptyRealtime(message = "暂无高风险数据") {
   $("#realtimeContent").innerHTML = `
     <div class="empty-state">
@@ -1111,33 +1233,102 @@ function renderCathodicTable() {
 }
 
 function renderConstructionVideos() {
-  const rows = currentAlertRows();
+  const sourceRows = currentAlertRows();
+  const rows = filteredConstructionRows(sourceRows);
+  const riskStats = constructionStats(sourceRows, ["低风险", "中风险", "高风险"], ["#38bdf8", "#facc15", "#fb923c"], "level");
+  const statusStats = constructionStats(sourceRows, ["待确认", "人工已确认", "处置中", "已完成"], ["#60a5fa", "#22c55e", "#f59e0b", "#14b8a6"], "processStatus");
+  const confirmedCount = sourceRows.filter((row) => row.processStatus === "人工已确认" || row.processStatus === "已完成").length;
+  const completedRate = sourceRows.length ? Math.round((confirmedCount / sourceRows.length) * 100) : 0;
+
   if (!rows.length) {
-    renderEmptyRealtime();
+    $("#realtimeContent").innerHTML = `
+      <div class="empty-state">
+        <span>!</span>
+        <strong>暂无匹配施工预警</strong>
+        <p>当前风险状态和处置状态组合下暂无视频预警。</p>
+      </div>
+    `;
     return;
   }
-  const constructionPageSize = 6;
+  const constructionPageSize = 8;
   const { pageRows, start } = pagedAlertRows(rows, constructionPageSize);
   $("#realtimeContent").innerHTML = `
-    <div class="video-grid">
+    <section class="construction-command" aria-label="第三方施工预警闭环">
+      <article class="construction-chart-card">
+        <div>
+          <p>风险分布</p>
+          <strong>${sourceRows.length}</strong>
+          <span>条视频预警</span>
+        </div>
+        <i class="donut" style="background:${donutGradient(riskStats)}"></i>
+        <ul>
+          ${riskStats.map((item) => `<li><b style="background:${item.color}"></b><span>${item.name}</span><strong>${item.count}</strong></li>`).join("")}
+        </ul>
+      </article>
+      <article class="construction-chart-card process">
+        <div>
+          <p>业务闭环</p>
+          <strong>${completedRate}%</strong>
+          <span>已确认/已完成</span>
+        </div>
+        <i class="donut" style="background:${donutGradient(statusStats)}"></i>
+        <ul>
+          ${statusStats.map((item) => `<li><b style="background:${item.color}"></b><span>${item.name}</span><strong>${item.count}</strong></li>`).join("")}
+        </ul>
+      </article>
+    </section>
+    <div class="construction-filter-row" aria-label="第三方施工筛选">
+      <label>
+        风险状态
+        <select id="constructionRiskFilter">
+          ${["全部风险", "低风险", "中风险", "高风险"].map((item) => `<option value="${item}" ${state.constructionRiskFilter === item ? "selected" : ""}>${item}</option>`).join("")}
+        </select>
+      </label>
+      <label>
+        处置状态
+        <select id="constructionStatusFilter">
+          ${["全部状态", "待确认", "人工已确认", "处置中", "已完成"].map((item) => `<option value="${item}" ${state.constructionStatusFilter === item ? "selected" : ""}>${item}</option>`).join("")}
+        </select>
+      </label>
+      <span>当前筛选 ${rows.length} 条</span>
+    </div>
+    <div class="video-grid construction-video-grid">
       ${pageRows
-        .map(
-          (item, index) => `
-            <article class="video-card ${start + index === state.activeAlertIndex ? "active" : ""}" tabindex="0" role="button" data-alert-index="${start + index}" title="点击选中该风险事件">
-              <button class="video-thumb ${item.videoUrl ? "has-video" : ""}" type="button" data-alert-index="${start + index}" aria-label="查看视频大图" style="background:${item.thumbnail}">
-                ${item.videoUrl ? `<video src="${item.videoUrl}" muted preload="auto" playsinline></video>` : ""}
+        .map(({ row, sourceIndex }) => `
+            <article class="video-card construction-video-card ${constructionRiskClass(row.level)} ${constructionStatusClass(row.processStatus)} ${sourceIndex === state.activeAlertIndex ? "active" : ""}" tabindex="0" role="button" data-alert-index="${sourceIndex}" title="点击选中该风险事件">
+              <button class="video-thumb ${row.videoUrl ? "has-video" : ""}" type="button" data-alert-index="${sourceIndex}" aria-label="查看视频大图" style="background:${row.thumbnail}">
+                ${row.videoUrl ? `<video src="${row.videoUrl}" muted preload="auto" playsinline></video>` : ""}
                 <span class="video-open"><i></i></span>
+                <span class="risk-corner">${row.level}</span>
+                <span class="status-corner">${row.processStatus}</span>
               </button>
-              <strong>${item.title}</strong>
-              <small>${item.time} · ${item.camera}</small>
-              <em>${item.distance} · ${item.level} · ${item.beforeAfter}</em>
+              <strong>${row.title}</strong>
+              <small>${row.time} · ${row.camera} · ${row.station}</small>
+              <div class="construction-card-foot">
+                <span>${row.confirmResult}</span>
+              </div>
             </article>
-          `,
-        )
+          `)
         .join("")}
     </div>
     ${renderTablePager(rows, constructionPageSize)}
   `;
+
+  $("#constructionRiskFilter")?.addEventListener("change", (event) => {
+    state.constructionRiskFilter = event.target.value;
+    state.activeAlertPage = 1;
+    state.activeAlertIndex = filteredConstructionRows(currentAlertRows())[0]?.sourceIndex || 0;
+    renderConstructionVideos();
+    renderSelectedAnalysis();
+  });
+
+  $("#constructionStatusFilter")?.addEventListener("change", (event) => {
+    state.constructionStatusFilter = event.target.value;
+    state.activeAlertPage = 1;
+    state.activeAlertIndex = filteredConstructionRows(currentAlertRows())[0]?.sourceIndex || 0;
+    renderConstructionVideos();
+    renderSelectedAnalysis();
+  });
 
   document.querySelectorAll(".video-card").forEach((card) => {
     const selectCard = () => {
@@ -1170,6 +1361,11 @@ function renderConstructionVideos() {
 function renderSelectedAnalysis() {
   const alert = activeAlert();
   const risk = activeRisk();
+  const liveMonitorButton = $("#selectedLiveMonitorButton");
+  if (liveMonitorButton) {
+    liveMonitorButton.hidden = true;
+    liveMonitorButton.onclick = null;
+  }
   if (!alert) {
     $("#selectedAlertLabel").textContent = "暂无数据";
     $("#selectedAnalysis").innerHTML = `
@@ -1190,6 +1386,73 @@ function renderSelectedAnalysis() {
   const metricText = riskThresholdText(risk.id, alert);
 
   $("#selectedAlertLabel").textContent = alertRiskStatus(alert, risk);
+  if (risk.id === "construction") {
+    $("#selectedAlertLabel").textContent = `${risk.name} · ${alert.level} · ${alert.processStatus || "待确认"}`;
+    if (liveMonitorButton) {
+      liveMonitorButton.hidden = false;
+      liveMonitorButton.onclick = () => openVideoModal(alert);
+    }
+    $("#selectedAnalysis").innerHTML = `
+      <article class="construction-report-analysis">
+        <div class="construction-report-grid">
+          <div class="construction-report-text">
+            <section class="construction-report-brief">
+              <div class="construction-fact-grid">
+                <span>
+                  <b>等级预警</b>
+                  <strong>${alert.level}</strong>
+                </span>
+                <span>
+                  <b>预警时间</b>
+                  <strong>${alert.time}</strong>
+                </span>
+                <span>
+                  <b>告警目标</b>
+                  <strong>${alert.deviceName || alert.camera}</strong>
+                </span>
+                <span>
+                  <b>告警地点</b>
+                  <strong>${alert.station || alert.region}</strong>
+                </span>
+                <span>
+                  <b>风险区域</b>
+                  <strong>${alert.distance}</strong>
+                </span>
+                <span>
+                  <b>历史告警频次</b>
+                  <strong>${frequencyText}</strong>
+                </span>
+              </div>
+            </section>
+            <div class="construction-report-sections">
+              <section>
+                <h3>可能原因</h3>
+                <p>${alert.cause}</p>
+              </section>
+              <section>
+                <h3>可能影响</h3>
+                <p>${alert.impact}</p>
+              </section>
+              <section>
+                <h3>处置建议</h3>
+                <p>${alert.advice}</p>
+              </section>
+              <section>
+                <h3>处置情况</h3>
+                <p>${alert.disposalResult || (alert.processStatus === "人工已确认" ? "人工确认不是风险，未进入事件处置流程。" : `当前状态：${alert.processStatus || "待确认"}。${alert.confirmResult || "等待业务系统返回确认结果。"}`)}</p>
+              </section>
+              <section class="wide">
+                <h3>智能研判结果描述</h3>
+                <p>${alert.analysisResult || "模型根据视频识别结果、距离、持续时间和历史频次自动生成研判结论。"}</p>
+              </section>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
   $("#selectedAnalysis").innerHTML = `
     <article class="model-analysis">
       <div class="analysis-summary">

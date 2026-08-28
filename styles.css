@@ -1286,6 +1286,13 @@ small {
   min-height: 230px;
 }
 
+.selected-analysis-meta {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
 .model-analysis {
   padding: 18px 20px;
   border: 1px solid rgba(34, 211, 238, 0.2);
@@ -1482,6 +1489,452 @@ small {
   color: var(--cyan);
   font-size: 13px;
   font-style: normal;
+}
+
+.construction-command {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.construction-chart-card,
+.construction-flow-card {
+  min-height: 142px;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  background:
+    linear-gradient(135deg, rgba(14, 116, 144, 0.22), rgba(8, 18, 32, 0.58)),
+    rgba(2, 8, 23, 0.7);
+}
+
+.construction-chart-card {
+  display: grid;
+  grid-template-columns: 100px 92px 1fr;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+}
+
+.construction-chart-card p,
+.construction-chart-card span {
+  margin: 0;
+  color: #9eb6d4;
+  font-size: 12px;
+}
+
+.construction-chart-card strong {
+  display: block;
+  margin: 4px 0;
+  color: #f8fafc;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.construction-chart-card .donut {
+  position: relative;
+  display: block;
+  width: 92px;
+  height: 92px;
+  border-radius: 999px;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 0 24px rgba(34, 211, 238, 0.12);
+}
+
+.construction-chart-card .donut::after {
+  position: absolute;
+  inset: 22px;
+  content: "";
+  border-radius: inherit;
+  background: #061424;
+  box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.14);
+}
+
+.construction-chart-card ul {
+  display: grid;
+  gap: 7px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.construction-chart-card li {
+  display: grid;
+  grid-template-columns: 10px max-content auto;
+  align-items: center;
+  gap: 8px;
+  justify-content: start;
+  min-width: 0;
+  color: #cbd5e1;
+  font-size: 12px;
+}
+
+.construction-chart-card li b {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+}
+
+.construction-chart-card li strong {
+  margin: 0;
+  color: #e0f2fe;
+  font-size: 15px;
+}
+
+.construction-flow-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  gap: 8px;
+  padding: 18px 16px;
+  overflow: hidden;
+}
+
+.construction-flow-card::before {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 50%;
+  height: 2px;
+  content: "";
+  background: linear-gradient(90deg, var(--cyan), rgba(52, 211, 153, 0.78), rgba(250, 204, 21, 0.74));
+  box-shadow: 0 0 20px rgba(34, 211, 238, 0.22);
+}
+
+.construction-flow-card span {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 60px;
+  padding: 8px;
+  color: #dff7ff;
+  font-size: 12px;
+  font-weight: 800;
+  text-align: center;
+  border: 1px solid rgba(125, 211, 252, 0.3);
+  background: rgba(8, 18, 32, 0.94);
+}
+
+.construction-flow-card span::before {
+  width: 12px;
+  height: 12px;
+  margin-bottom: 5px;
+  content: "";
+  border-radius: 999px;
+  background: var(--cyan);
+  box-shadow: 0 0 16px rgba(34, 211, 238, 0.74);
+}
+
+.construction-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(34, 211, 238, 0.18);
+  background: rgba(3, 12, 24, 0.58);
+}
+
+.construction-filter-row label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #dbeafe;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.construction-filter-row select {
+  min-width: 150px;
+  min-height: 34px;
+  padding: 5px 32px 5px 10px;
+  color: #e5f3ff;
+  border: 1px solid rgba(34, 211, 238, 0.38);
+  outline: none;
+  background: rgba(8, 18, 32, 0.94);
+}
+
+.construction-filter-row span {
+  margin-left: auto;
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.construction-video-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.construction-video-card {
+  position: relative;
+  gap: 7px;
+  padding: 9px;
+}
+
+.construction-video-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  content: "";
+  background: var(--construction-risk-color, var(--cyan));
+  box-shadow: 0 0 18px var(--construction-risk-color, var(--cyan));
+}
+
+.construction-video-card.risk-low {
+  --construction-risk-color: #38bdf8;
+}
+
+.construction-video-card.risk-medium {
+  --construction-risk-color: #facc15;
+}
+
+.construction-video-card.risk-high {
+  --construction-risk-color: #fb923c;
+}
+
+.risk-corner,
+.status-corner {
+  position: absolute;
+  z-index: 1;
+  min-height: 24px;
+  padding: 4px 7px;
+  color: #061424;
+  font-size: 12px;
+  font-weight: 900;
+  background: var(--construction-risk-color, var(--cyan));
+}
+
+.risk-corner {
+  left: 8px;
+  top: 8px;
+}
+
+.status-corner {
+  right: 8px;
+  top: 8px;
+  color: #e5f3ff;
+  background: rgba(2, 8, 23, 0.76);
+  border: 1px solid rgba(226, 232, 240, 0.32);
+}
+
+.construction-card-foot {
+  display: block;
+  min-height: 32px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(125, 211, 252, 0.12);
+}
+
+.construction-card-foot span {
+  min-width: 0;
+  overflow: hidden;
+  color: #9eb6d4;
+  font-size: 12px;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.construction-card-foot b {
+  color: #bae6fd;
+  font-size: 12px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.construction-analysis {
+  background:
+    linear-gradient(135deg, rgba(14, 116, 144, 0.16), rgba(15, 23, 42, 0.2) 52%, rgba(20, 184, 166, 0.1)),
+    rgba(8, 18, 32, 0.68);
+}
+
+.construction-status-line {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+  counter-reset: status-step;
+}
+
+.construction-status-line i {
+  position: relative;
+  min-height: 38px;
+  padding: 9px 10px 9px 34px;
+  color: #e0f2fe;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 900;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  background: rgba(14, 116, 144, 0.22);
+}
+
+.construction-status-line i::before {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 16px;
+  height: 16px;
+  color: #061424;
+  font-size: 11px;
+  content: counter(status-step);
+  counter-increment: status-step;
+  border-radius: 999px;
+  background: var(--cyan);
+  transform: translateY(-50%);
+}
+
+.construction-status-line i.muted {
+  color: #72839a;
+  border-color: rgba(148, 163, 184, 0.14);
+  background: rgba(8, 18, 32, 0.46);
+}
+
+.construction-status-line i.muted::before {
+  background: #475569;
+}
+
+.construction-status-line.confirmed i:nth-child(2),
+.construction-status-line.done i,
+.construction-status-line.processing i:nth-child(-n + 3) {
+  border-color: rgba(52, 211, 153, 0.34);
+  background: rgba(52, 211, 153, 0.14);
+}
+
+.construction-result {
+  padding-top: 10px;
+  border-top: 1px solid rgba(125, 211, 252, 0.14);
+}
+
+.construction-report-analysis {
+  display: grid;
+  gap: 14px;
+  padding: 18px 20px;
+  border: 1px solid rgba(34, 211, 238, 0.2);
+  background:
+    linear-gradient(90deg, rgba(14, 116, 144, 0.1), transparent 46%),
+    rgba(8, 18, 32, 0.62);
+}
+
+.construction-report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.construction-report-text {
+  display: grid;
+  gap: 16px;
+}
+
+.construction-report-text section {
+  display: block;
+  margin: 0;
+}
+
+.construction-report-text h3 {
+  margin: 0 0 6px;
+  color: #e0f2fe;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.construction-report-text p {
+  margin: 0;
+  color: #d4e4f7;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.construction-report-brief {
+  display: grid !important;
+  gap: 0;
+}
+
+.construction-fact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.construction-fact-grid span,
+.construction-report-sections section {
+  border: 1px solid rgba(34, 211, 238, 0.16);
+  background: rgba(2, 8, 23, 0.28);
+}
+
+.construction-fact-grid span {
+  display: grid;
+  gap: 6px;
+  min-height: 68px;
+  padding: 11px 12px;
+}
+
+.construction-fact-grid b {
+  display: block;
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.construction-fact-grid strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 16px;
+  line-height: 1.35;
+}
+
+.construction-report-sections {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.construction-report-sections section {
+  padding: 13px 14px;
+}
+
+.construction-report-sections section.wide {
+  grid-column: 1 / -1;
+}
+
+.live-monitor-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 7px 18px;
+  color: #061424;
+  font-weight: 900;
+  border: 1px solid rgba(165, 243, 252, 0.9);
+  background: linear-gradient(180deg, #67e8f9 0%, #22d3ee 48%, #0891b2 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -2px 0 rgba(8, 47, 73, 0.4),
+    0 0 20px rgba(34, 211, 238, 0.24);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+.analysis-head-live {
+  min-height: 34px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+.analysis-head-live[hidden] {
+  display: none;
+}
+
+.live-monitor-button:hover {
+  border-color: rgba(34, 211, 238, 0.92);
+  box-shadow: 0 0 26px rgba(34, 211, 238, 0.2);
+}
+
+.live-monitor-button:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 2px 4px rgba(8, 47, 73, 0.34),
+    0 0 14px rgba(34, 211, 238, 0.18);
 }
 
 .video-preload {
