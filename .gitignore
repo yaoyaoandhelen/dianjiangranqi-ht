@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+.pnpm-store/
+.tools/
+.env
+.env.*
+!.env.example
+*.log
+*.tmp
+*.temp
+.idea/
+.vscode/
