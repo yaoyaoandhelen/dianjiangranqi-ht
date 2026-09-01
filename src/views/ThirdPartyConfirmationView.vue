@@ -125,13 +125,13 @@
                 <span class="level-pill" :class="levelClass(activeItem.level)">{{ activeItem.level }}</span>
                 <span class="status-pill" :class="statusClass(activeItem.processStatus)">{{ activeItem.processStatus || "待确认" }}</span>
               </div>
-              <strong>{{ activeItem.station || activeItem.distance }}</strong>
+              <strong>{{ warningAddress(activeItem, activeIndex ?? 0) }}</strong>
               <em>{{ deviceName(activeItem, "construction") }}</em>
             </div>
             <dl>
               <div>
-                <dt>预警区域</dt>
-                <dd>{{ activeItem.distance || activeItem.region }}</dd>
+                <dt>预警内容</dt>
+                <dd>{{ warningContent(activeItem) }}</dd>
               </div>
               <div>
                 <dt>智能研判</dt>
@@ -346,6 +346,18 @@ function statusClass(status?: ConstructionProcessStatus) {
     处置中: "processing",
     已完成: "done",
   }[status || "待确认"];
+}
+
+function warningAddress(row: AlertRow, index: number) {
+  const streetNames = ["桂溪街道", "桂阳街道", "高安镇", "长龙镇", "澄溪镇", "沙坪镇"];
+  const roadNames = ["迎宾大道", "桂西路", "明月大道", "工业园北路", "人民东路", "滨河路"];
+  const seedSource = `${row.station || ""}${row.camera || ""}${row.deviceName || ""}`;
+  const seed = Array.from(seedSource).reduce((sum, char) => sum + char.charCodeAt(0), index);
+  return `垫江县${streetNames[seed % streetNames.length]}${roadNames[seed % roadNames.length]}${18 + (seed % 72)}号`;
+}
+
+function warningContent(row: AlertRow) {
+  return row.title || row.analysisResult || row.cause;
 }
 
 function applyFilters() {

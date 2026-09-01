@@ -2675,9 +2675,9 @@ small {
 }
 
 .status-pill.done {
-  color: #ccfbf1;
-  border-color: rgba(20, 184, 166, 0.42);
-  background: rgba(20, 184, 166, 0.12);
+  color: #f5f3ff;
+  border-color: rgba(124, 58, 237, 0.55);
+  background: rgba(124, 58, 237, 0.22);
 }
 
 .confirm-action,
@@ -3303,9 +3303,10 @@ body.confirmation-admin-page #app {
 }
 
 .confirmation-admin .status-pill.done {
-  color: #0f766e;
-  border-color: #99f6e4;
-  background: #f0fdfa;
+  color: #5b21b6;
+  border-color: #c4b5fd;
+  background: #ede9fe;
+  box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.12);
 }
 
 .confirmation-admin .confirm-action,
