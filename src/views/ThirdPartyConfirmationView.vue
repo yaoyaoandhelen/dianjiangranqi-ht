@@ -80,10 +80,6 @@
                 <th>预警区域</th>
                 <th>设备名称</th>
                 <th>处置状态</th>
-                <th>可能原因</th>
-                <th>可能影响</th>
-                <th>处置建议</th>
-                <th>智能研判结果描述</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -96,10 +92,6 @@
                 <td>{{ item.row.distance || item.row.region }}</td>
                 <td>{{ deviceName(item.row, "construction") }}</td>
                 <td><span class="status-pill" :class="statusClass(item.row.processStatus)">{{ item.row.processStatus || "待确认" }}</span></td>
-                <td>{{ item.row.cause }}</td>
-                <td>{{ item.row.impact }}</td>
-                <td>{{ item.row.advice }}</td>
-                <td>{{ item.row.analysisResult || "模型已完成施工活动、距离、持续时间综合研判，建议人工复核。" }}</td>
                 <td>
                   <button class="confirm-action" type="button" :class="{ disabled: isConfirmedRisk(item.row) }" @click="openConfirm(item.sourceIndex)">
                     {{ isConfirmedRisk(item.row) ? "已确认" : "人工确认" }}

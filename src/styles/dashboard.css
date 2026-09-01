@@ -2532,7 +2532,7 @@ small {
 
 .confirm-table {
   width: 100%;
-  min-width: 1780px;
+  min-width: 1080px;
   border-collapse: collapse;
   table-layout: fixed;
   background: rgba(2, 8, 23, 0.48);
@@ -2580,7 +2580,7 @@ small {
 .confirm-table td:nth-child(5),
 .confirm-table th:nth-child(6),
 .confirm-table td:nth-child(6) {
-  width: 168px;
+  width: 190px;
 }
 
 .confirm-table th:nth-child(7),
@@ -2589,21 +2589,7 @@ small {
 }
 
 .confirm-table th:nth-child(8),
-.confirm-table td:nth-child(8),
-.confirm-table th:nth-child(9),
-.confirm-table td:nth-child(9),
-.confirm-table th:nth-child(10),
-.confirm-table td:nth-child(10) {
-  width: 220px;
-}
-
-.confirm-table th:nth-child(11),
-.confirm-table td:nth-child(11) {
-  width: 240px;
-}
-
-.confirm-table th:nth-child(12),
-.confirm-table td:nth-child(12) {
+.confirm-table td:nth-child(8) {
   width: 110px;
   text-align: center;
 }
