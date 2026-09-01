@@ -101,7 +101,7 @@
                 <td>{{ item.row.advice }}</td>
                 <td>{{ item.row.analysisResult || "模型已完成施工活动、距离、持续时间综合研判，建议人工复核。" }}</td>
                 <td>
-                  <button class="confirm-action" type="button" :disabled="isConfirmedRisk(item.row)" @click="openConfirm(item.sourceIndex)">
+                  <button class="confirm-action" type="button" :class="{ disabled: isConfirmedRisk(item.row) }" @click="openConfirm(item.sourceIndex)">
                     {{ isConfirmedRisk(item.row) ? "已确认" : "人工确认" }}
                   </button>
                 </td>
@@ -177,16 +177,39 @@
 
         <section class="decision-panel" aria-label="风险确认">
           <h3>确认选项</h3>
-          <el-radio-group v-model="decision">
+          <el-radio-group v-model="decision" :disabled="Boolean(disposalInfo)">
             <el-radio-button label="risk">是，确认为风险并下发三级治理</el-radio-button>
             <el-radio-button label="notRisk">否，归档为非风险</el-radio-button>
           </el-radio-group>
+        </section>
+
+        <section v-if="disposalInfo" class="disposal-result-panel" aria-label="处置结果">
+          <div class="dialog-section-head">
+            <h3>处置结果</h3>
+            <span>{{ disposalInfo.status }}</span>
+          </div>
+          <template v-if="disposalInfo.status === '处置中'">
+            <p>
+              该预警信息已下发三级治理中心并生成风险事单为{{ disposalInfo.eventCode }}的{{ activeItem.level }}事件，该事件正在处置中
+              <span class="loading-dots" aria-label="正在处置中"><i></i><i></i><i></i></span>
+            </p>
+          </template>
+          <dl v-else class="disposal-result-detail">
+            <div>
+              <dt>事件单编号</dt>
+              <dd>{{ disposalInfo.eventCode }}</dd>
+            </div>
+            <div>
+              <dt>处置结果描述</dt>
+              <dd>{{ disposalInfo.result }}</dd>
+            </div>
+          </dl>
         </section>
       </template>
 
       <template #footer>
         <button class="dialog-secondary" type="button" @click="dialogVisible = false">取消</button>
-        <button class="dialog-primary" type="button" @click="submitConfirm">确认提交</button>
+        <button class="dialog-primary" type="button" :disabled="Boolean(disposalInfo)" @click="submitConfirm">确认提交</button>
       </template>
     </el-dialog>
   </div>
@@ -263,6 +286,25 @@ const historyStats = computed(() => {
     high: rows.filter((row) => row.level === "高风险").length,
   };
 });
+const disposalInfo = computed(() => {
+  if (!activeItem.value || !activeItem.value.governanceCenter) return null;
+  const eventCode = activeItem.value.eventCode || "-";
+  if (activeItem.value.processStatus === "已完成") {
+    return {
+      status: "已完成" as const,
+      eventCode,
+      result: activeItem.value.disposalResult || "三级治理中心反馈：现场已完成风险核查与处置，预警事件已闭环。",
+    };
+  }
+  if (activeItem.value.processStatus === "处置中") {
+    return {
+      status: "处置中" as const,
+      eventCode,
+      result: activeItem.value.disposalResult || "",
+    };
+  }
+  return null;
+});
 const stats = computed(() => {
   const rows = store.constructionConfirmRows;
   const pending = countByStatus(rows, "待确认");
@@ -317,8 +359,6 @@ function resetFilters() {
 }
 
 function openConfirm(index: number) {
-  const row = store.constructionConfirmRows[index];
-  if (row && isConfirmedRisk(row)) return;
   activeIndex.value = index;
   decision.value = store.constructionConfirmRows[index]?.governanceCenter ? "risk" : "notRisk";
   dialogVisible.value = true;
@@ -328,7 +368,7 @@ function submitConfirm() {
   if (activeIndex.value === null) return;
   const result = store.confirmConstructionAlert(activeIndex.value, decision.value === "risk");
   if (!result) return;
-  dialogVisible.value = false;
+  if (decision.value !== "risk") dialogVisible.value = false;
   ElMessage.success(decision.value === "risk" ? "已确认风险并下发三级治理" : "已归档为非风险");
 }
 
