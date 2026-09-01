@@ -167,7 +167,7 @@
             <article v-for="item in historyRows" :key="`${item.time}-${item.camera}`" class="history-item">
               <span class="level-pill" :class="levelClass(item.level)">{{ item.level }}</span>
               <div>
-                <strong>{{ item.time }} · {{ item.station }}</strong>
+                <strong>{{ item.time }}</strong>
                 <p>{{ item.analysisResult || item.cause }}</p>
               </div>
               <small>{{ item.processStatus || "待确认" }}</small>
