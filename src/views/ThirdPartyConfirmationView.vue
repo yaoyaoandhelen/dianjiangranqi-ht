@@ -99,7 +99,7 @@
                   </button>
                 </td>
                 <td>
-                  <button class="confirm-action" type="button" :class="{ disabled: isConfirmedRisk(item.row) }" @click="openConfirm(item.sourceIndex)">
+                  <button class="confirm-action" type="button" :class="{ disabled: isArchivedConfirmation(item.row) }" @click="openConfirm(item.sourceIndex)">
                     {{ confirmButtonText(item.row) }}
                   </button>
                 </td>
@@ -151,7 +151,7 @@
                 <dd>{{ activeItem.advice }}</dd>
               </div>
               <div class="detail-image-field">
-                <dt>抽帧分析缩略图</dt>
+                <dt>预警图片</dt>
                 <dd>
                   <button class="dialog-warning-thumb" type="button" @click="openImagePreview(activeItem)">
                     <img :src="warningImage(activeItem)" :alt="`${warningContent(activeItem)}抽帧分析缩略图`" />
@@ -159,6 +159,9 @@
                 </dd>
               </div>
             </dl>
+            <p class="ai-reference-tip">
+              提示：可能原因、可能影响和处置建议由 AI 根据当前预警信息生成，仅供辅助研判参考，实际处置需结合现场核查、业务制度和专业人员判断后执行。
+            </p>
           </div>
         </section>
 
@@ -196,8 +199,11 @@
             <el-radio-button label="notRisk">否，归档为非风险</el-radio-button>
           </el-radio-group>
           <label class="confirm-remark-field">
-            确认备注
-            <textarea v-model.trim="confirmRemark" :disabled="Boolean(disposalInfo)" placeholder="请输入本次人工确认备注" rows="3"></textarea>
+            <span>
+              确认备注
+              <em>{{ confirmRemark.length }}/500</em>
+            </span>
+            <textarea v-model.trim="confirmRemark" :disabled="Boolean(disposalInfo)" maxlength="500" placeholder="请输入本次人工确认备注" rows="3"></textarea>
           </label>
         </section>
 
@@ -459,7 +465,7 @@ function submitConfirm() {
   ElMessage.success(decision.value === "risk" ? "已确认风险并下发三级治理" : "已归档为非风险");
 }
 
-function isConfirmedRisk(row: AlertRow) {
-  return Boolean(row.governanceCenter) || row.processStatus === "处置中" || row.processStatus === "已完成";
+function isArchivedConfirmation(row: AlertRow) {
+  return row.processStatus === "人工已确认";
 }
 </script>

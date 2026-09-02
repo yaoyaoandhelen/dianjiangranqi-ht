@@ -2841,6 +2841,18 @@ small {
   align-self: end;
 }
 
+.ai-reference-tip {
+  margin: 12px 0 0;
+  padding: 9px 11px;
+  color: #fef3c7;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.55;
+  border: 1px solid rgba(245, 158, 11, 0.36);
+  border-radius: 4px;
+  background: rgba(245, 158, 11, 0.14);
+}
+
 .history-risk-stats {
   display: flex;
   align-items: center;
@@ -2963,8 +2975,11 @@ small {
 }
 
 .history-item small {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: #cbd5e1;
-  text-align: right;
+  text-align: center;
 }
 
 .warning-thumb-button,
@@ -3043,6 +3058,19 @@ small {
   color: #93a4b8;
   font-size: 12px;
   font-weight: 800;
+}
+
+.confirm-remark-field span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.confirm-remark-field em {
+  color: #94a3b8;
+  font-style: normal;
+  font-weight: 700;
 }
 
 .confirm-remark-field textarea {
@@ -3570,6 +3598,12 @@ body.confirmation-admin-page #app {
 
 .risk-confirm-dialog .confirm-remark-field textarea::placeholder {
   color: #98a2b3;
+}
+
+.risk-confirm-dialog .ai-reference-tip {
+  color: #92400e;
+  border-color: #fde68a;
+  background: #fffbeb;
 }
 
 .risk-confirm-dialog .disposal-result-panel {
