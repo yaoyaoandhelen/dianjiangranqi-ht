@@ -114,7 +114,10 @@
       <template v-if="activeItem">
         <section class="dialog-detail" aria-label="当前预警详情">
           <div class="dialog-section-head">
-            <h3>当前预警详情</h3>
+            <div class="dialog-title-actions">
+              <h3>当前预警详情</h3>
+              <button class="live-view-button" type="button" @click="openRealtimeView(activeItem)">调用实时画面</button>
+            </div>
             <span>{{ activeItem.time }}</span>
           </div>
           <div class="warning-detail-compact">
@@ -173,13 +176,15 @@
             <article v-for="item in historyRows" :key="`${item.time}-${item.camera}`" class="history-item">
               <button class="history-thumb-button" type="button" @click="openImagePreview(item)">
                 <img :src="warningImage(item)" :alt="`${warningContent(item)}历史预警缩略图`" />
-                <small>{{ statusLabel(item.processStatus) }}</small>
               </button>
-              <span class="level-pill" :class="levelClass(item.level)">{{ item.level }}</span>
               <div>
-                <strong>{{ item.time }}</strong>
+                <strong>
+                  {{ item.time }}
+                  <span class="level-pill" :class="levelClass(item.level)">{{ item.level }}</span>
+                </strong>
                 <p>{{ item.analysisResult || item.cause }}</p>
               </div>
+              <small>{{ statusLabel(item.processStatus) }}</small>
             </article>
           </div>
         </section>
@@ -190,6 +195,10 @@
             <el-radio-button label="risk">是，确认为风险并下发三级治理</el-radio-button>
             <el-radio-button label="notRisk">否，归档为非风险</el-radio-button>
           </el-radio-group>
+          <label class="confirm-remark-field">
+            确认备注
+            <textarea v-model.trim="confirmRemark" :disabled="Boolean(disposalInfo)" placeholder="请输入本次人工确认备注" rows="3"></textarea>
+          </label>
         </section>
 
         <section v-if="disposalInfo" class="disposal-result-panel" aria-label="处置结果">
@@ -224,6 +233,16 @@
 
     <el-dialog v-model="imagePreviewOpen" class="image-preview-dialog" width="760px" title="预警图片" append-to-body>
       <img v-if="previewImage" class="preview-image" :src="previewImage" alt="预警抽帧分析大图" />
+    </el-dialog>
+
+    <el-dialog v-model="realtimeVisible" class="realtime-video-dialog" width="820px" title="实时监控画面" append-to-body>
+      <div v-if="realtimeItem" class="realtime-video-panel">
+        <div class="realtime-video-meta">
+          <strong>{{ deviceName(realtimeItem, "construction") }}</strong>
+          <span>{{ warningAddress(realtimeItem, activeIndex ?? 0) }}</span>
+        </div>
+        <video :src="realtimeVideo(realtimeItem)" controls autoplay muted loop playsinline></video>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -267,8 +286,11 @@ const appliedFilters = ref<QueryFilters>(emptyFilters());
 const dialogVisible = ref(false);
 const imagePreviewOpen = ref(false);
 const previewImage = ref("");
+const realtimeVisible = ref(false);
+const realtimeItem = ref<AlertRow | null>(null);
 const activeIndex = ref<number | null>(null);
 const decision = ref<"risk" | "notRisk">("risk");
+const confirmRemark = ref("");
 
 onMounted(() => {
   document.body.classList.add("confirmation-admin-page");
@@ -397,9 +419,18 @@ function warningImage(row: AlertRow) {
   return "./assets/images/third-party-construction-low-risk.mp4.png";
 }
 
+function realtimeVideo(row: AlertRow) {
+  return row.videoUrl ? row.videoUrl.replace(/^\/assets\//, "./assets/") : "";
+}
+
 function openImagePreview(row: AlertRow) {
   previewImage.value = warningImage(row);
   imagePreviewOpen.value = true;
+}
+
+function openRealtimeView(row: AlertRow) {
+  realtimeItem.value = row;
+  realtimeVisible.value = true;
 }
 
 function applyFilters() {
@@ -413,14 +444,16 @@ function resetFilters() {
 }
 
 function openConfirm(index: number) {
+  const row = store.constructionConfirmRows[index];
   activeIndex.value = index;
-  decision.value = store.constructionConfirmRows[index]?.governanceCenter ? "risk" : "notRisk";
+  decision.value = row?.governanceCenter ? "risk" : "notRisk";
+  confirmRemark.value = row?.confirmRemark || "";
   dialogVisible.value = true;
 }
 
 function submitConfirm() {
   if (activeIndex.value === null) return;
-  const result = store.confirmConstructionAlert(activeIndex.value, decision.value === "risk");
+  const result = store.confirmConstructionAlert(activeIndex.value, decision.value === "risk", confirmRemark.value);
   if (!result) return;
   if (decision.value !== "risk") dialogVisible.value = false;
   ElMessage.success(decision.value === "risk" ? "已确认风险并下发三级治理" : "已归档为非风险");

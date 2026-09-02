@@ -59,7 +59,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
     activeAlertIndex.value = index;
   }
 
-  function confirmConstructionAlert(index: number, isRisk: boolean) {
+  function confirmConstructionAlert(index: number, isRisk: boolean, remark = "") {
     const row = constructionConfirmRows.value[index];
     if (!row) return null;
 
@@ -70,6 +70,7 @@ export const useDashboardStore = defineStore("dashboard", () => {
       eventCode: isRisk ? eventCode : undefined,
       governanceCenter: isRisk ? row.governanceCenter || "三级治理中心 · 属地街镇" : undefined,
       confirmResult: isRisk ? "人工确认存在风险，已下发三级治理。" : "人工复核为非风险，未进入事件处置流程。",
+      confirmRemark: remark.trim(),
       disposalResult: isRisk ? row.disposalResult || "已下发三级治理，等待属地处置平台接收并反馈。" : "未进入三级治理流程，仅保留人工复核记录。",
     };
 

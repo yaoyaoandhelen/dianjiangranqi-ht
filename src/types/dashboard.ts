@@ -44,6 +44,7 @@ export interface AlertRow {
   processStatus?: ConstructionProcessStatus;
   businessSystem?: string;
   confirmResult?: string;
+  confirmRemark?: string;
   eventCode?: string;
   governanceCenter?: string;
   disposalResult?: string;
