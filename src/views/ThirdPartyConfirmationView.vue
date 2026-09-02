@@ -99,7 +99,7 @@
                   </button>
                 </td>
                 <td>
-                  <button class="confirm-action" type="button" :class="{ disabled: isArchivedConfirmation(item.row) }" @click="openConfirm(item.sourceIndex)">
+                  <button class="confirm-action" type="button" @click="openConfirm(item.sourceIndex)">
                     {{ confirmButtonText(item.row) }}
                   </button>
                 </td>
@@ -194,7 +194,7 @@
 
         <section class="decision-panel" aria-label="风险确认">
           <h3>确认选项</h3>
-          <el-radio-group v-model="decision" :disabled="Boolean(disposalInfo)">
+          <el-radio-group v-model="decision" :disabled="isDecisionReadonly">
             <el-radio-button label="risk">是，确认为风险并下发三级治理</el-radio-button>
             <el-radio-button label="notRisk">否，归档为非风险</el-radio-button>
           </el-radio-group>
@@ -203,7 +203,7 @@
               确认备注
               <em>{{ confirmRemark.length }}/500</em>
             </span>
-            <textarea v-model.trim="confirmRemark" :disabled="Boolean(disposalInfo)" maxlength="500" placeholder="请输入本次人工确认备注" rows="3"></textarea>
+            <textarea v-model.trim="confirmRemark" :disabled="isDecisionReadonly" maxlength="500" placeholder="请输入本次人工确认备注" rows="3"></textarea>
           </label>
         </section>
 
@@ -231,7 +231,7 @@
         </section>
       </template>
 
-      <template #footer>
+      <template v-if="!isConfirmedStatus" #footer>
         <button class="dialog-secondary" type="button" @click="dialogVisible = false">取消</button>
         <button class="dialog-primary" type="button" :disabled="Boolean(disposalInfo)" @click="submitConfirm">确认提交</button>
       </template>
@@ -354,6 +354,8 @@ const disposalInfo = computed(() => {
   }
   return null;
 });
+const isConfirmedStatus = computed(() => activeItem.value?.processStatus === "人工已确认");
+const isDecisionReadonly = computed(() => Boolean(disposalInfo.value) || isConfirmedStatus.value);
 const stats = computed(() => {
   const rows = store.constructionConfirmRows;
   const pending = countByStatus(rows, "待确认");
@@ -402,8 +404,7 @@ function statusLabel(status?: ConstructionProcessStatus) {
 }
 
 function confirmButtonText(row: AlertRow) {
-  if (row.processStatus === "处置中" || row.processStatus === "已完成") return "查看详情";
-  if (row.processStatus === "人工已确认") return "已确认";
+  if ((row.processStatus || "待确认") !== "待确认") return "查看详情";
   return "人工确认";
 }
 
@@ -465,7 +466,4 @@ function submitConfirm() {
   ElMessage.success(decision.value === "risk" ? "已确认风险并下发三级治理" : "已归档为非风险");
 }
 
-function isArchivedConfirmation(row: AlertRow) {
-  return row.processStatus === "人工已确认";
-}
 </script>
