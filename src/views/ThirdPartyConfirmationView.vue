@@ -126,12 +126,6 @@
               <strong>{{ warningAddress(activeItem, activeIndex ?? 0) }}</strong>
               <em>{{ deviceName(activeItem, "construction") }}</em>
             </div>
-            <div class="detail-image-row">
-              <button class="dialog-warning-thumb" type="button" @click="openImagePreview(activeItem)">
-                <img :src="warningImage(activeItem)" :alt="`${warningContent(activeItem)}抽帧分析缩略图`" />
-              </button>
-              <span>抽帧分析缩略图</span>
-            </div>
             <dl>
               <div>
                 <dt>预警内容</dt>
@@ -153,6 +147,14 @@
                 <dt>处置建议</dt>
                 <dd>{{ activeItem.advice }}</dd>
               </div>
+              <div class="detail-image-field">
+                <dt>抽帧分析缩略图</dt>
+                <dd>
+                  <button class="dialog-warning-thumb" type="button" @click="openImagePreview(activeItem)">
+                    <img :src="warningImage(activeItem)" :alt="`${warningContent(activeItem)}抽帧分析缩略图`" />
+                  </button>
+                </dd>
+              </div>
             </dl>
           </div>
         </section>
@@ -171,13 +173,13 @@
             <article v-for="item in historyRows" :key="`${item.time}-${item.camera}`" class="history-item">
               <button class="history-thumb-button" type="button" @click="openImagePreview(item)">
                 <img :src="warningImage(item)" :alt="`${warningContent(item)}历史预警缩略图`" />
+                <small>{{ statusLabel(item.processStatus) }}</small>
               </button>
               <span class="level-pill" :class="levelClass(item.level)">{{ item.level }}</span>
               <div>
                 <strong>{{ item.time }}</strong>
                 <p>{{ item.analysisResult || item.cause }}</p>
               </div>
-              <small>{{ statusLabel(item.processStatus) }}</small>
             </article>
           </div>
         </section>

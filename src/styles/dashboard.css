@@ -2811,19 +2811,6 @@ small {
   font-style: normal;
 }
 
-.detail-image-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 0 0 10px;
-}
-
-.detail-image-row span {
-  color: #93a4b8;
-  font-size: 12px;
-  font-weight: 800;
-}
-
 .warning-detail-compact dl {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2848,6 +2835,10 @@ small {
   color: #f8fafc;
   font-size: 12px;
   line-height: 1.55;
+}
+
+.warning-detail-compact .detail-image-field {
+  align-self: end;
 }
 
 .history-risk-stats {
@@ -2920,10 +2911,10 @@ small {
 
 .history-item {
   display: grid;
-  grid-template-columns: 92px 74px 1fr 78px;
-  gap: 12px;
+  grid-template-columns: 78px 74px 1fr;
+  gap: 10px;
   align-items: start;
-  min-height: 72px;
+  min-height: 64px;
   padding: 10px;
 }
 
@@ -2942,7 +2933,6 @@ small {
 
 .history-item small {
   color: #cbd5e1;
-  text-align: right;
 }
 
 .warning-thumb-button,
@@ -2970,8 +2960,9 @@ small {
 }
 
 .history-thumb-button {
-  width: 92px;
-  height: 52px;
+  position: relative;
+  width: 78px;
+  height: 44px;
 }
 
 .warning-thumb-button img,
@@ -2988,6 +2979,23 @@ small {
 .history-thumb-button:hover {
   border-color: rgba(37, 99, 235, 0.7);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.history-thumb-button small {
+  position: absolute;
+  right: 3px;
+  bottom: 3px;
+  max-width: calc(100% - 6px);
+  padding: 1px 5px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 10px;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-radius: 3px;
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
 }
 
 .image-preview-dialog {
