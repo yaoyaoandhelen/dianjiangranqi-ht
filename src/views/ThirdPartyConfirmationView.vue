@@ -85,8 +85,8 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="item in filteredRows" :key="`${item.row.time}-${item.sourceIndex}`">
-                <td>{{ item.sourceIndex + 1 }}</td>
+              <tr v-for="(item, pageIndex) in pagedRows" :key="`${item.row.time}-${item.sourceIndex}`">
+                <td>{{ rowNumber(pageIndex) }}</td>
                 <td><span class="level-pill" :class="levelClass(item.row.level)">{{ item.row.level }}</span></td>
                 <td>{{ item.row.time }}</td>
                 <td>{{ item.row.station || item.row.distance }}</td>
@@ -106,6 +106,21 @@
               </tr>
             </tbody>
           </table>
+        </div>
+        <div class="confirm-pagination" aria-label="预警确认列表分页">
+          <span>共 {{ filteredRows.length }} 条</span>
+          <button type="button" :disabled="currentPage === 1" @click="changePage(currentPage - 1)">上一页</button>
+          <button
+            v-for="page in visiblePages"
+            :key="page"
+            type="button"
+            :class="{ active: page === currentPage }"
+            @click="changePage(page)"
+          >
+            {{ page }}
+          </button>
+          <button type="button" :disabled="currentPage === totalPages" @click="changePage(currentPage + 1)">下一页</button>
+          <span>{{ currentPage }}/{{ totalPages }} 页</span>
         </div>
       </section>
     </main>
@@ -297,6 +312,8 @@ const realtimeItem = ref<AlertRow | null>(null);
 const activeIndex = ref<number | null>(null);
 const decision = ref<"risk" | "notRisk">("risk");
 const confirmRemark = ref("");
+const pageSize = 10;
+const currentPage = ref(1);
 
 onMounted(() => {
   document.body.classList.add("confirmation-admin-page");
@@ -316,6 +333,12 @@ const filteredRows = computed(() =>
     .filter(({ row }) => appliedFilters.value.status === "全部状态" || (row.processStatus || "待确认") === appliedFilters.value.status)
     .sort(compareConfirmRows),
 );
+const totalPages = computed(() => Math.max(1, Math.ceil(filteredRows.value.length / pageSize)));
+const pagedRows = computed(() => {
+  const start = (currentPage.value - 1) * pageSize;
+  return filteredRows.value.slice(start, start + pageSize);
+});
+const visiblePages = computed(() => Array.from({ length: totalPages.value }, (_, index) => index + 1));
 const activeItem = computed(() => (activeIndex.value === null ? null : store.constructionConfirmRows[activeIndex.value] || null));
 const historyRows = computed(() => {
   if (!activeItem.value) return [];
@@ -357,7 +380,7 @@ const disposalInfo = computed(() => {
 const isConfirmedStatus = computed(() => activeItem.value?.processStatus === "人工已确认");
 const isDecisionReadonly = computed(() => Boolean(disposalInfo.value) || isConfirmedStatus.value);
 const stats = computed(() => {
-  const rows = store.constructionConfirmRows;
+  const rows = filteredRows.value.map((item) => item.row);
   const pending = countByStatus(rows, "待确认");
   const confirmedNoRisk = rows.filter((row) => row.processStatus === "人工已确认" && !row.governanceCenter).length;
   const processing = countByStatus(rows, "处置中");
@@ -372,6 +395,14 @@ const stats = computed(() => {
 
 function countByStatus(rows: AlertRow[], status: ConstructionProcessStatus) {
   return rows.filter((row) => (row.processStatus || "待确认") === status).length;
+}
+
+function rowNumber(pageIndex: number) {
+  return (currentPage.value - 1) * pageSize + pageIndex + 1;
+}
+
+function changePage(page: number) {
+  currentPage.value = Math.min(Math.max(page, 1), totalPages.value);
 }
 
 function compareConfirmRows(left: { row: AlertRow }, right: { row: AlertRow }) {
@@ -442,12 +473,14 @@ function openRealtimeView(row: AlertRow) {
 
 function applyFilters() {
   appliedFilters.value = { ...draftFilters.value };
+  currentPage.value = 1;
 }
 
 function resetFilters() {
   const nextFilters = emptyFilters();
   draftFilters.value = nextFilters;
   appliedFilters.value = { ...nextFilters };
+  currentPage.value = 1;
 }
 
 function openConfirm(index: number) {

@@ -2604,6 +2604,39 @@ small {
   background: rgba(14, 165, 233, 0.08);
 }
 
+.confirm-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-top: 12px;
+  color: #9fb4ce;
+  font-size: 13px;
+}
+
+.confirm-pagination button {
+  min-width: 32px;
+  min-height: 30px;
+  padding: 0 10px;
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.74);
+}
+
+.confirm-pagination button.active {
+  color: #ffffff;
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.confirm-pagination button:disabled {
+  color: #64748b;
+  cursor: not-allowed;
+  background: rgba(15, 23, 42, 0.3);
+}
+
 .level-pill {
   display: inline-flex;
   align-items: center;
@@ -3439,6 +3472,27 @@ body.confirmation-admin-page #app {
 
 .confirmation-admin .confirm-table tbody tr:hover {
   background: #f4f8ff;
+}
+
+.confirmation-admin .confirm-pagination {
+  color: #667085;
+}
+
+.confirmation-admin .confirm-pagination button {
+  color: #344054;
+  border-color: #c8d5e4;
+  background: #ffffff;
+}
+
+.confirmation-admin .confirm-pagination button.active {
+  color: #ffffff;
+  border-color: #2563eb;
+  background: #2563eb;
+}
+
+.confirmation-admin .confirm-pagination button:disabled {
+  color: #98a2b3;
+  background: #f2f4f7;
 }
 
 .confirmation-admin .level-pill.low,
