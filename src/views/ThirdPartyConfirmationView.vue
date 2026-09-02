@@ -59,7 +59,7 @@
             <label>
               处置状态
               <select v-model="draftFilters.status">
-                <option v-for="item in statusOptions" :key="item" :value="item">{{ item }}</option>
+                <option v-for="item in statusOptions" :key="item.value" :value="item.value">{{ item.label }}</option>
               </select>
             </label>
           </div>
@@ -80,6 +80,7 @@
                 <th>预警区域</th>
                 <th>设备名称</th>
                 <th>处置状态</th>
+                <th>预警图片</th>
                 <th>操作</th>
               </tr>
             </thead>
@@ -91,10 +92,15 @@
                 <td>{{ item.row.station || item.row.distance }}</td>
                 <td>{{ item.row.distance || item.row.region }}</td>
                 <td>{{ deviceName(item.row, "construction") }}</td>
-                <td><span class="status-pill" :class="statusClass(item.row.processStatus)">{{ item.row.processStatus || "待确认" }}</span></td>
+                <td><span class="status-pill" :class="statusClass(item.row.processStatus)">{{ statusLabel(item.row.processStatus) }}</span></td>
+                <td>
+                  <button class="warning-thumb-button" type="button" @click="openImagePreview(item.row)">
+                    <img :src="warningImage(item.row)" :alt="`${warningContent(item.row)}抽帧分析缩略图`" />
+                  </button>
+                </td>
                 <td>
                   <button class="confirm-action" type="button" :class="{ disabled: isConfirmedRisk(item.row) }" @click="openConfirm(item.sourceIndex)">
-                    {{ isConfirmedRisk(item.row) ? "已确认" : "人工确认" }}
+                    {{ confirmButtonText(item.row) }}
                   </button>
                 </td>
               </tr>
@@ -115,10 +121,16 @@
             <div class="detail-meta-row">
               <div>
                 <span class="level-pill" :class="levelClass(activeItem.level)">{{ activeItem.level }}</span>
-                <span class="status-pill" :class="statusClass(activeItem.processStatus)">{{ activeItem.processStatus || "待确认" }}</span>
+                <span class="status-pill" :class="statusClass(activeItem.processStatus)">{{ statusLabel(activeItem.processStatus) }}</span>
               </div>
               <strong>{{ warningAddress(activeItem, activeIndex ?? 0) }}</strong>
               <em>{{ deviceName(activeItem, "construction") }}</em>
+            </div>
+            <div class="detail-image-row">
+              <button class="dialog-warning-thumb" type="button" @click="openImagePreview(activeItem)">
+                <img :src="warningImage(activeItem)" :alt="`${warningContent(activeItem)}抽帧分析缩略图`" />
+              </button>
+              <span>抽帧分析缩略图</span>
             </div>
             <dl>
               <div>
@@ -157,12 +169,15 @@
           </div>
           <div class="history-list">
             <article v-for="item in historyRows" :key="`${item.time}-${item.camera}`" class="history-item">
+              <button class="history-thumb-button" type="button" @click="openImagePreview(item)">
+                <img :src="warningImage(item)" :alt="`${warningContent(item)}历史预警缩略图`" />
+              </button>
               <span class="level-pill" :class="levelClass(item.level)">{{ item.level }}</span>
               <div>
                 <strong>{{ item.time }}</strong>
                 <p>{{ item.analysisResult || item.cause }}</p>
               </div>
-              <small>{{ item.processStatus || "待确认" }}</small>
+              <small>{{ statusLabel(item.processStatus) }}</small>
             </article>
           </div>
         </section>
@@ -204,6 +219,10 @@
         <button class="dialog-primary" type="button" :disabled="Boolean(disposalInfo)" @click="submitConfirm">确认提交</button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="imagePreviewOpen" class="image-preview-dialog" width="760px" title="预警图片" append-to-body>
+      <img v-if="previewImage" class="preview-image" :src="previewImage" alt="预警抽帧分析大图" />
+    </el-dialog>
   </div>
 </template>
 
@@ -216,10 +235,16 @@ import { deviceName } from "@/utils/dashboard";
 
 const store = useDashboardStore();
 const levelOptions = ["全部等级", "低风险", "中风险", "高风险"] as const;
-const statusOptions = ["全部状态", "待确认", "人工已确认", "处置中", "已完成"] as const;
+const statusOptions = [
+  { label: "全部状态", value: "全部状态" },
+  { label: "待确认", value: "待确认" },
+  { label: "已确认", value: "人工已确认" },
+  { label: "处置中", value: "处置中" },
+  { label: "已完成", value: "已完成" },
+] as const;
 type QueryFilters = {
   level: (typeof levelOptions)[number];
-  status: (typeof statusOptions)[number];
+  status: (typeof statusOptions)[number]["value"];
   date: string;
   location: string;
   device: string;
@@ -238,6 +263,8 @@ function emptyFilters(): QueryFilters {
 const draftFilters = ref<QueryFilters>(emptyFilters());
 const appliedFilters = ref<QueryFilters>(emptyFilters());
 const dialogVisible = ref(false);
+const imagePreviewOpen = ref(false);
+const previewImage = ref("");
 const activeIndex = ref<number | null>(null);
 const decision = ref<"risk" | "notRisk">("risk");
 
@@ -340,6 +367,16 @@ function statusClass(status?: ConstructionProcessStatus) {
   }[status || "待确认"];
 }
 
+function statusLabel(status?: ConstructionProcessStatus) {
+  return status === "人工已确认" ? "已确认" : status || "待确认";
+}
+
+function confirmButtonText(row: AlertRow) {
+  if (row.processStatus === "处置中" || row.processStatus === "已完成") return "查看详情";
+  if (row.processStatus === "人工已确认") return "已确认";
+  return "人工确认";
+}
+
 function warningAddress(row: AlertRow, index: number) {
   const streetNames = ["桂溪街道", "桂阳街道", "高安镇", "长龙镇", "澄溪镇", "沙坪镇"];
   const roadNames = ["迎宾大道", "桂西路", "明月大道", "工业园北路", "人民东路", "滨河路"];
@@ -350,6 +387,17 @@ function warningAddress(row: AlertRow, index: number) {
 
 function warningContent(row: AlertRow) {
   return row.title || row.analysisResult || row.cause;
+}
+
+function warningImage(row: AlertRow) {
+  if (row.videoUrl?.includes("construction-waterlogging-risk")) return "./assets/images/construction-waterlogging-risk.mp4.png";
+  if (row.videoUrl?.includes("third-party-construction-low-risk-2")) return "./assets/images/third-party-construction-low-risk-2.mp4.png";
+  return "./assets/images/third-party-construction-low-risk.mp4.png";
+}
+
+function openImagePreview(row: AlertRow) {
+  previewImage.value = warningImage(row);
+  imagePreviewOpen.value = true;
 }
 
 function applyFilters() {
